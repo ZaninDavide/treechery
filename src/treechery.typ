@@ -1,112 +1,86 @@
-#import "@preview/cetz:0.3.1"
+#import "@preview/fletcher:0.5.3"
+#import "algorithms.typ"
 
-#let custom_node(boxer) = {
-	return metadata((
-		type: "treechery",
-		boxer: boxer,
-	))
-}
-
-#let node(
+#let styling(
+	shape: fletcher.shapes.rect,
+	inset: 7pt, 
+	fill: white,
 	stroke: 0.5pt, 
 	radius: 2pt, 
-	inset: 7pt, 
-	fill: gray.lighten(80%),
 	text: black,
+	arrow-tip: "-|>",
+	arrow-stroke: 0.5pt,
 	alignment: center 
 ) = {
-	return custom_node(content => box(
-		stroke: stroke, 
-		radius: radius, 
-		inset: inset, 
-		fill: fill, {
-			set std.text(fill: text);
-			align(alignment, content)
-		}
-	))
+	return (
+		make-node: (origin, content) => fletcher.node(
+			origin, 
+			inset: inset, 
+			corner-radius: radius, 
+			shape: shape, 
+			stroke: stroke, 
+			fill: fill, {
+				set std.text(fill: text)
+				align(center, content)
+			}
+		),
+		make-edge: (from, to) => fletcher.edge(from, arrow-tip, to, stroke: arrow-stroke),
+	)
 }
 
-#let content_to_tree(body) = {
-	if body.has("children") == false { 
-		return body
+#let decorator(styling) = {
+	return metadata((owner: "treechery", styling: styling))
+}
+
+#let content-to-tree(body) = {
+	if body.has("children") == false or body.children.len() == 0 { 
+		return (
+			content: body, 
+			depth: 0, 
+			width: 1, 
+			children: (),
+		)
 	}
 
 	let content = [] // content of the node 
-	let items = () // children of this node
+	let children = () // children of this node
 
 	let head = true
+	let width = 0
+	let depth = 0
 	for child in body.children {
 		if child.func() == list.item {
 			head = false
-			items.push(content_to_tree(child.body))
+			let child = content-to-tree(child.body)
+			width += child.width
+			if depth <= child.depth { depth = child.depth + 1 }
+			children.push(child)
 		} else if head {
 			content += child
 		}
 	}
 
-	return (content, ..items)
+	return (
+		content: content, 
+		depth: depth, 
+		width: calc.max(1, width), 
+		children: children
+	)
 }
 
-#let treechery(
-	boxer: node().value.boxer,
-	stroke: 0.5pt, 
-	spread: 2.75, 
-	grow: 1.75,
-	direction: "down",
+#let tree(
+	spread: 2.75cm, 
+	grow: 1.75cm,
+	styling: styling(),
+	algorithm: algorithms.centered-children,
 	body
 ) = {
-	let data = content_to_tree(body);
-	data.remove(0);
 
-	let draw-node = (node, ..) => {
-		let element = boxer(node.content)
-		let found = false
-		if repr(node.content.func()) == "sequence" {
-			// Find metadata for styling 
-			for child in node.content.children {
-				if child.func() == metadata and child.value.type == "treechery" {
-					if type(child.value.boxer) == function {
-						element = (child.value.boxer)(node.content)
-					}
-					found = true
-					break;
-				}
-			}
-		}
-    cetz.draw.content((), element)
-  }
+	// Every child of the primary node is a different tree
+	for tree in content-to-tree(body).children {
+		fletcher.diagram({
+			algorithm(tree, (0cm, 0cm), spread, grow, styling)
+		})
+	}
 
-	let draw-edge = (from, to, ..) => {
-    cetz.draw.line(
-			(a: from, number: 0, b: to),
-      (a: to, number: 0, b: from), 
-			// mark: (end: ">"),
-			stroke: stroke,
-		)
-  }
-
-	return align(center)[#{
-		for data-tree in data {
-			cetz.canvas({
-				// Draw edges
-				cetz.tree.tree(
-						data-tree,
-						draw-node: (node, ..) => {},
-						draw-edge: draw-edge,
-						spread: spread, 
-						grow: grow,
-						direction: direction,
-				)
-				// Draw nodes
-				cetz.tree.tree(
-						data-tree,
-						draw-node: draw-node,
-						draw-edge: (from, to, ..) => {},
-						spread: spread, 
-						grow: grow,
-						direction: direction,
-				)
-			})
-		}
-	}]
 }
