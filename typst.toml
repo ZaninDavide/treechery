@@ -1,0 +1,13 @@
+[package]
+name = "treechery"
+version = "0.1.0"
+compiler = "0.12.0"
+entrypoint = "src/lib.typ"
+authors = ["Davide Zanin <https://github.com/ZaninDavide>"]
+license = "Apache-2.0"
+description = "A user-friendly package for drawing trees."
+repository = "https://github.com/ZaninDavide/treechery"
+keywords = ["trees", "diagrams"]
+categories = ["visualization"]
+disciplines = ["drawing", "design"]
+exclude = ["docs.pdf", "docs.typ", "/images/*"]
