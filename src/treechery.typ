@@ -1,36 +1,6 @@
 #import "@preview/fletcher:0.5.3"
 #import "algorithms.typ"
-
-#let styling(
-	shape: fletcher.shapes.rect,
-	inset: 7pt, 
-	fill: white,
-	stroke: 0.5pt, 
-	radius: 2pt, 
-	text: black,
-	arrow-tip: "-|>",
-	arrow-stroke: 0.5pt,
-	alignment: center 
-) = {
-	return (
-		make-node: (origin, content) => fletcher.node(
-			origin, 
-			inset: inset, 
-			corner-radius: radius, 
-			shape: shape, 
-			stroke: stroke, 
-			fill: fill, {
-				set std.text(fill: text)
-				align(center, content)
-			}
-		),
-		make-edge: (from, to) => fletcher.edge(from, arrow-tip, to, stroke: arrow-stroke),
-	)
-}
-
-#let decorator(styling) = {
-	return metadata((owner: "treechery", styling: styling))
-}
+#import "styling.typ": styling
 
 #let content-to-tree(body) = {
 	if body.has("children") == false or body.children.len() == 0 { 
@@ -69,17 +39,16 @@
 }
 
 #let tree(
-	spread: 2.75cm, 
-	grow: 1.75cm,
 	styling: styling(),
 	algorithm: algorithms.centered-children,
+	origin: (0cm, 0cm),
 	body
 ) = {
 
 	// Every child of the primary node is a different tree
 	for tree in content-to-tree(body).children {
 		fletcher.diagram({
-			algorithm(tree, (0cm, 0cm), spread, grow, styling)
+			algorithm(tree, origin, styling)
 		})
 	}
 
