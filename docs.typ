@@ -1,25 +1,22 @@
-#import "src/lib.typ": tree, decorator, styling, shapes, algorithms
+#import "src/lib.typ": tree, decorate, styling, shapes, algorithms
 
-#show list: tree.with(algorithm: algorithms.centered-tree)
+#show list: tree
 
 // Prepare a few styling decorators
-#let hexagonal = decorator(styling(
-	shape: shapes.hexagon, 
-))
-#let strong = decorator(styling(
-	fill: black, 
-	text: white, 
-))
-#let dashed = decorator(styling(
-	arrow-stroke: (dash: "dashed")
-))
+#let hexagonal = decorate(shape: shapes.hexagon)
+#let strong = decorate(fill: black, text: white)
+#let dashed = decorate(arrow-stroke: (dash: "dashed"))
+#let flat = decorate(grow: 0cm, algorithm: algorithms.even-children)
 
-- Animalia
+- Animalia #decorate(spread: 3.2cm)
 	- Chordata
 		- Mammalia #dashed
 			- Primates
 			- Carnivora #hexagonal#strong
 	- Arthropoda
-		- Insecta #strong#dashed
-			- Diptera
+		- Insecta #strong#dashed#flat
+			- Diptera #decorate(spread: 1.75cm)
+				- Lorem
+				- Ipsum
 			- Zygentoma
+				- Dolor

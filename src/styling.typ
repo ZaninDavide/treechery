@@ -1,19 +1,5 @@
 #import "@preview/fletcher:0.5.3"
 
-#let default-styling = (
-	spread: 7em, 
-	grow: 4.5em,
-	shape: fletcher.shapes.rect,
-	inset: 0.6em,
-	fill: white,
-	stroke: 0.5pt, 
-	radius: 2pt, 
-	text: black,
-	arrow-tip: "-|>",
-	arrow-stroke: 0.5pt,
-	alignment: center,
-)
-
 #let styling(
 	spread: auto, 
 	grow: auto,
@@ -26,6 +12,7 @@
 	arrow-tip: auto,
 	arrow-stroke: auto,
 	alignment: auto,
+	algorithm: auto,
 	make-node: auto,
 	make-edge: auto,
 ) = {
@@ -42,6 +29,7 @@
 	if arrow-tip != auto { dict.insert("arrow-tip", arrow-tip) }
 	if arrow-stroke != auto { dict.insert("arrow-stroke", arrow-stroke) }
 	if alignment != auto { dict.insert("alignment", alignment) }
+	if algorithm != auto { dict.insert("algorithm", algorithm) }
 	if make-node != auto { dict.insert("make-node", make-node) }
 	if make-edge != auto { dict.insert("make-edge", make-edge) }
 
@@ -52,18 +40,18 @@
 	return metadata((owner: "treechery", styling: styling))
 }
 
-#let node-styling(tree, tree-styling) = {
+#let node-styling(node-content, tree-styling) = {
   let is-decorator(obj) = (
     obj.func() == metadata and 
     obj.value.at("owner", default: none) == "treechery" and 
     obj.value.at("styling", default: none) != none 
   )
 
-  if is-decorator(tree.content) { return default-styling + tree-styling + tree.content.value.styling } 
+  if is-decorator(node-content) { return tree-styling + node-content.value.styling } 
   
-  let styling = default-styling + tree-styling
-  if repr(tree.content.func()) == "sequence" {
-    for obj in tree.content.children {
+  let styling = tree-styling
+  if repr(node-content.func()) == "sequence" {
+    for obj in node-content.children {
       if is-decorator(obj) {
         styling += obj.value.styling // combine dictionaries
       }
@@ -76,21 +64,21 @@
 #let styling-to-make-functions(styling) = {
 	let make-node = (origin, content) => fletcher.node(
 		origin, 
-		inset: styling.at("inset", default: default-styling.inset), 
-		corner-radius: styling.at("radius", default: default-styling.radius), 
-		shape: styling.at("shape", default: default-styling.shape), 
-		stroke: styling.at("stroke", default: default-styling.stroke), 
-		fill: styling.at("fill", default: default-styling.fill), 
+		inset: styling.at("inset"), 
+		corner-radius: styling.at("radius"), 
+		shape: styling.at("shape"), 
+		stroke: styling.at("stroke"), 
+		fill: styling.at("fill"), 
 		{
-			set std.text(fill: styling.at("text", default: default-styling.text))
+			set std.text(fill: styling.at("text"))
 			align(center, content)
 		}
 	)
 	let make-edge = (from, to) => fletcher.edge(
 		from, 
-		styling.at("arrow-tip", default: default-styling.arrow-tip), 
+		styling.at("arrow-tip"), 
 		to, 
-		stroke: styling.at("arrow-stroke", default: default-styling.arrow-stroke)
+		stroke: styling.at("arrow-stroke")
 	)
 
 	if styling.at("make-node", default: none) != none { make-node = styling.make-node }

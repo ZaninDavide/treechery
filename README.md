@@ -7,23 +7,26 @@ This user-friendly [Typst](https://typst.app/) package turns bullet lists into b
 </p>
 
 ```typ
-#import "@local/treechery:0.1.0": tree, decorator, styling, shapes
+#import "@local/treechery:0.1.0": tree, decorate, styling, shapes, algorithms
 
 #show list: tree
-#let strong = decorator(styling(
-	shape: shapes.hexagon, 
-	fill: black, 
-	text: white, 
-	arrow-stroke: (dash: "dashed")
-))
 
-- Animalia
+// Prepare a few styling decorators
+#let hexagonal = decorate(shape: shapes.hexagon)
+#let strong = decorate(fill: black, text: white)
+#let dashed = decorate(arrow-stroke: (dash: "dashed"))
+#let flat = decorate(grow: 0cm, algorithm: algorithms.even-children)
+
+- Animalia #decorate(spread: 3.2cm)
 	- Chordata
-		- Mammalia
+		- Mammalia #dashed
 			- Primates
-			- Carnivora #strong
+			- Carnivora #hexagonal#strong
 	- Arthropoda
-		- Insecta #strong
-			- Diptera
+		- Insecta #strong#dashed#flat
+			- Diptera #decorate(spread: 1.75cm)
+				- Lorem
+				- Ipsum
 			- Zygentoma
+				- Dolor
 ```

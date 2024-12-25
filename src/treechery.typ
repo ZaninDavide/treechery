@@ -2,6 +2,21 @@
 #import "algorithms.typ"
 #import "styling.typ": styling
 
+#let default-styling = (
+	spread: 7em, 
+	grow: 4.5em,
+	shape: fletcher.shapes.rect,
+	inset: 0.6em,
+	fill: white,
+	stroke: 0.5pt, 
+	radius: 2pt, 
+	text: black,
+	arrow-tip: "-|>",
+	arrow-stroke: 0.5pt,
+	alignment: center,
+	algorithm: algorithms.centered-tree
+)
+
 #let content-to-tree(body) = {
 	if body.has("children") == false or body.children.len() == 0 { 
 		return (
@@ -40,15 +55,15 @@
 
 #let tree(
 	styling: styling(),
-	algorithm: algorithms.centered-children,
 	origin: (0cm, 0cm),
 	body
 ) = {
 
 	// Every child of the primary node is a different tree
+	let tree-styling = default-styling + styling
 	for tree in content-to-tree(body).children {
 		fletcher.diagram({
-			algorithm(tree, origin, styling)
+			tree-styling.at("algorithm")(tree, origin, tree-styling)
 		})
 	}
 
