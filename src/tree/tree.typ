@@ -13,7 +13,7 @@
 		fill: styling.at("fill"), 
 		{
 			set std.text(fill: styling.at("text"))
-			align(center, content)
+			align(styling.at("alignment"), content)
 		}
 	)
 }
