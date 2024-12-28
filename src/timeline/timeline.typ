@@ -28,39 +28,42 @@
 	)
 }
 
-#let timeline(date-styling: styling(), description-styling: styling(), spacing: 10pt, body) = {
-	let default-date-styling = (
+#let timeline(term-styling: styling(), description-styling: styling(), spacing: 10pt, body) = {
+	let default-term-styling = (
 		shape: fletcher.shapes.chevron,
 		inset: 0.6em,
-		fill: white,
+		fill: auto,
 		stroke: 0.5pt, 
 		radius: 2pt, 
 		text: black,
-		arrow-tip: "-|>",
+		arrow-tip: "-",
 		arrow-stroke: 0.5pt,
 		alignment: center,
-    width: 15em,
+    width: 8em,
     height: auto,
 	)
 	let default-description-styling = (
-		shape: fletcher.shapes.octagon.with(truncate: 5pt),
+		shape: fletcher.shapes.rect,
 		inset: 0.6em,
 		fill: white,
 		stroke: 0.5pt, 
 		radius: 0pt, 
 		text: black,
-		arrow-tip: "-O",
+		arrow-tip: "-",
 		arrow-stroke: 0.5pt,
 		alignment: center,
-    width: 15em,
-    height: auto,
+    width: 8em,
+    height: 6em,
 	)
 
   let x = 0
 	fletcher.diagram(spacing: spacing, {
     for child in parse-term-list(body).children {
-      let title-style = node-styling(child.title, default-date-styling + date-styling)
+      let title-style = node-styling(child.title, default-term-styling + term-styling)
       let content-style = node-styling(child.content, default-description-styling + description-styling)
+			if title-style.fill == auto {
+        title-style.fill = content-style.fill
+      }
       let y = 2*calc.rem(x, 2) - 1
       draw-node((x, 0), child.title, title-style)
       draw-node((x, y), child.content, content-style)

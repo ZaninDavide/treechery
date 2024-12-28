@@ -39,16 +39,16 @@
 // Creates a decorator with the specified styling options. It's equivalent to `decorator(styling: styling(...))` so it takes the same arguments as `styling`.
 #let decorate(..args) = decorator(styling(..args))
 
-#let node-styling(node-content, tree-styling) = {
+#let node-styling(node-content, base-styling) = {
   let is-decorator(obj) = (
     obj.func() == metadata and 
     obj.value.at("owner", default: none) == "treechery" and 
     obj.value.at("styling", default: none) != none 
   )
 
-  if is-decorator(node-content) { return tree-styling + node-content.value.styling } 
+  if is-decorator(node-content) { return base-styling + node-content.value.styling } 
   
-  let styling = tree-styling
+  let styling = base-styling
   if repr(node-content.func()) == "sequence" {
     for obj in node-content.children {
       if is-decorator(obj) {
